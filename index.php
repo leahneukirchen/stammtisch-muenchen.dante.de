@@ -176,7 +176,7 @@ kann sich <a href="https://lists.dante.de/mailman/listinfo/stammtisch-muenchen">
 
 
 <p class="updated">
-<em>Letzte Aktualisierung: 2023-08-13 14:16</em>
+<em>Letzte Aktualisierung: 2023-08-13 14:19</em>
 </p>
   </div>
   </div>
