@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="de-de">
-
+<html lang="de">
 <?php
 
 $weekdays = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
@@ -39,8 +38,8 @@ function load_table($base) {
 
 load_table("dates");
 load_table("addresses");
-?>
 
+?>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -73,13 +72,12 @@ h2 {
   font-size: 1.25em;
 }
 
-.main {
+main {
   background: #ffffff;
   -webkit-box-shadow: 0 10px 20px 0 rgba(236, 236, 236, 0.86);
           box-shadow: 0 10px 20px 0 rgba(236, 236, 236, 0.86);
   width: 800px;
   margin: 60px auto;
-
 }
 
 .content {
@@ -98,7 +96,8 @@ h2 {
   margin: 25px 0 1em 0;
 }
 
-.updated {
+footer {
+  font-style: italic;
   text-align: right;
 }
 
@@ -106,24 +105,23 @@ h2 {
 </head>
 
 <body>
-  <div class="main">
-    <div class="content">
-      <h1>TeX-Stammtisch in München</h1>
-      <div class="headerimg"></div>
+<main>
+<div class="content">
+<h1>TeX-Stammtisch in München</h1>
+<div class="headerimg"></div>
 
-  <div class="next">
-
-<h2>Unsere Treffen</h2>
+<h2>Unser Thema</h2>
 
 <p>
-Wir treffen uns alle zwei Monate in der ersten Woche der geradzahligen Monate,
-jeweils um 19 Uhr.
-Dabei wechseln wir den Wochentag zyklisch von Dienstag bis Donnerstag.
-Falls der Termin wirklich einmal auf einen Feiertag trifft oder in
-allgemeine Urlaubszeit fällt, weichen wir auf die zweite Woche aus.
+Unser Stammtisch ist ein offener Treff für alle, die an Diskussion und
+Information über das Textsatzsystem TeX und sein Umfeld und über
+Schriftsatz, Typografie und Druckereiwesen in irgendeiner Weise
+interessiert sind.  Willkommen sind vor allem auch Einsteiger auf der
+Suche nach Tipps, Erfahrungen und Ratschlägen zum Einsatz von LaTeX
+und anderen TeX-Formaten.
 </p>
 
-<h2>Nächster Termin</h2>
+<h2 id="next">Nächster Termin</h2>
 
 <?php
 $next = $db->querySingle("SELECT strftime('%w', date) as weekday,
@@ -216,11 +214,6 @@ Derzeit steht kein nächster Termin fest.
 }
 ?>
 
-
-</div>
-
-  <div class="past">
-
 <h2>Vergangene Termine</h2>
 
 <ul>
@@ -239,26 +232,23 @@ while ($row = $res->fetchArray()) {
 ?>
 </ul>
 
-  </div>
-
-  <div class="about">
-
-    <h2>Über den Münchner TeX-Stammtisch</h2>
+<h2 id="about">Über den Münchner TeX-Stammtisch</h2>
 
 <p>
 Unser Stammtisch wurde im Oktober 1998 von Michael Niedermair gegründet
-und wird derzeit von <a href="mailto:leah@vuxu.org">Leah Neukirchen</a>
+und wird gegenwärtig von <a href="mailto:leah@vuxu.org">Leah Neukirchen</a>
 organisiert.
-Er ist ein offener Treff für alle, die an Diskussion und Information
-über TeX und sein Umfeld und über Schriftsatz, Typografie und
-Druckereiwesen in irgendeiner Weise interessiert sind. Willkommen sind
-vor allem auch Einsteiger auf der Suche nach Tipps, Erfahrungen und
-Ratschlägen zum Einsatz von LaTeX und anderen TeX-Formaten.
 </p>
 
-  </div>
+<p>
+Wir treffen uns alle zwei Monate in der ersten Woche der geradzahligen Monate,
+jeweils um 19 Uhr.
+Dabei wechseln wir den Wochentag zyklisch von Dienstag bis Donnerstag.
+Falls der Termin wirklich einmal auf einen Feiertag trifft oder in
+allgemeine Urlaubszeit fällt, weichen wir auf die zweite Woche aus.
+</p>
 
-    <h2>Mailingliste</h2>
+<h2 id="list">Mailingliste</h2>
 
 <p>
 Für die Stammtischteilnehmer und sonstige Interessierte gibt es auf dem Server
@@ -269,10 +259,31 @@ Mitgliedern. Wer in diese Liste aufgenommen werden möchte,
 kann sich <a href="https://lists.dante.de/mailman/listinfo/stammtisch-muenchen">online anmelden</a>.
 </p>
 
+<h2 id="list">Bayerischer TeX-Stammtisch</h2>
 
-<p class="updated">
-<em>Letzte Aktualisierung: <?= strftime("%Y-%m-%d %H:%M") ?></em>
+<p>
+Es gibt in Bayern zwei TeX-Stammtische – in Erlangen und in
+München.  Ursprünglich trafen sich die Mitglieder beider Stammtische
+einmal jährlich abwechselnd im Raum Nürnberg und in München zu
+gemeinsamen Vorträgen, Diskussion und Erfahrungsaustausch mit
+anschließendem gemütlichen Beisammensein.  Die Teilnehmerzahl und das
+Einzugsgebiet wuchsen.  Inzwischen wurde daraus ein jährliches Treffen
+von TeX-Interessierten aus dem (typischerweise aber nicht
+notwendigerweise) süddeutschen Raum, das von den Mitgliedern der
+Stammtische Erlangen und München veranstaltet wird.
 </p>
-  </div>
-  </div>
+
+<p>
+Der bayrische TeX-Stammtisch hat inzwischen
+<a href="https://baytex.dante.de/">seine eigene Website baytex.dante.de</a>,
+einen Überblick über vergangene Stammtische gibts
+<a href="https://www.ks-ingenieurconsult.de/TeX/Stammtisch.html">hier</a>.
+</p>
+
+<footer>
+Letzte Aktualisierung: <?= strftime("%Y-%m-%d %H:%M") ?>
+</footer>
+
+</div>
+</main>
 </body>
