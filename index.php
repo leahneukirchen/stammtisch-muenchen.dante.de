@@ -93,7 +93,6 @@ h2 {
   background-image: url(./header.jpeg);
   background-size: cover;
   background-repeat: no-repeat;
-  background-position: 20%;
   width: 100%;
   height: 130px;
   margin: 25px 0 1em 0;
