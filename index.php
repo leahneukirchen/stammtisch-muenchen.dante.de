@@ -129,6 +129,7 @@ $next = $db->querySingle("SELECT strftime('%w', date) as weekday,
                                  strftime('%d', date) as day,
                                  strftime('%m', date) as month,
                                  strftime('%Y', date) as year,
+                                 datetime(date) as datetime,
                                  signup,
                                  name,
                                  address,
@@ -142,7 +143,34 @@ $next = $db->querySingle("SELECT strftime('%w', date) as weekday,
                           LIMIT 1", true);
 
 if ($next) {
+
+$json = [
+  "@context" => "https://schema.org",
+  "@type" => "Event",
+  "name" => "TeX-Stammtisch München",
+  "startDate" => $next["datetime"],
+  "eventAttendanceMode" => "https://schema.org/OfflineEventAttendanceMode",
+  "eventStatus" => "https://schema.org/EventScheduled",
+  "location" => [
+    "@type" => "Place",
+    "name" => $next["name"],
+    "address" => [
+      "@type" => "PostalAddress",
+      "streetAddress" => $next["address"],
+      "addressLocality" => $next["city"],
+    ]
+  ],
+  "organizer" => [
+    "@type" => "Person",
+    "name" => "Leah Neukirchen",
+  ],
+];
+
 ?>
+
+<script type="application/ld+json">
+<?= json_encode($json) . PHP_EOL ?>
+</script>
 
 <p>
 Am <?= $weekdays[$next["weekday"]] ?>, den <?= 0+$next["day"] ?>. <?= $months[$next["month"]] ?> <?= $next["year"] ?> ist wieder TeX-Stammtisch in München.
