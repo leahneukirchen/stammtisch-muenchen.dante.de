@@ -76,15 +76,15 @@ main {
   background: #ffffff;
   -webkit-box-shadow: 0 10px 20px 0 rgba(236, 236, 236, 0.86);
           box-shadow: 0 10px 20px 0 rgba(236, 236, 236, 0.86);
-  width: 800px;
+  max-width: 800px;
   margin: 60px auto;
 }
 
 .content {
-  width: 740px;
+  max-width: 740px;
   height: auto;
   margin: 0 auto;
-  padding: 0 0 20px 0;
+  padding: 0 20px 20px 20px;
 }
 
 .headerimg {
@@ -263,7 +263,8 @@ while ($row = $res->fetchArray()) {
 <h2 id="about">Über den Münchner TeX-Stammtisch</h2>
 
 <p>
-Unser Stammtisch wurde im Oktober 1998 von Michael Niedermair gegründet
+Unser Stammtisch wurde im Oktober 1998 von Michael Niedermair gegründet,
+lange Zeit von Uwe Siart geleitet,
 und wird gegenwärtig von <a href="mailto:leah@vuxu.org">Leah Neukirchen</a>
 organisiert.
 </p>
@@ -309,7 +310,8 @@ einen Überblick über vergangene Stammtische gibts
 </p>
 
 <footer>
-Letzte Aktualisierung: <?= strftime("%Y-%m-%d %H:%M") ?>
+Letzte Aktualisierung: <?= strftime("%Y-%m-%d %H:%M") ?> &middot;
+<a href="https://www.dante.de/impressum/">Impressum</a>
 </footer>
 
 </div>
