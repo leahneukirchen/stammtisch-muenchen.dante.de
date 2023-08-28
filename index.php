@@ -27,6 +27,7 @@ function load_table($base) {
     $ins = $db->prepare($insert);
     while (($data = fgetcsv($handle, 0, ";")) !== FALSE) {
       $ins->reset();
+      $ins->clear();
       foreach ($data as $index => $value) {
         $ins->bindValue($index+1, $value);
       }
