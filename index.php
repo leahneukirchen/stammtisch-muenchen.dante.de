@@ -189,6 +189,8 @@ Wir treffen uns um <?= $next["time"] ?> Uhr hier:
 <a href="<?= $next["url"] ?>"><?= $next["url"] ?></a><br>
 </blockquote>
 
+<?php is_file('anmerkung.php') AND include 'anmerkung.php'; ?>
+
 <?php
 if ($next["signup"]) {
 ?>
