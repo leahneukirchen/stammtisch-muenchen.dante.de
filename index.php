@@ -174,7 +174,7 @@ $json = [
 </script>
 
 <p>
-Am <?= $weekdays[$next["weekday"]] ?>, den <?= 0+$next["day"] ?>. <?= $months[$next["month"]] ?> <?= $next["year"] ?> ist wieder TeX-Stammtisch in München.
+Am <?= $weekdays[$next["weekday"]] ?>, den <?= 0+$next["day"] ?>. <?= $months[0+$next["month"]] ?> <?= $next["year"] ?> ist wieder TeX-Stammtisch in München.
 </p>
 
 <p>

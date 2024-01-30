@@ -1,8 +1,7 @@
-Dieses Mal beginnen wir schon um <b>18:00 Uhr</b>, und es wird im
-<i>Max-Planck-Institut für Psychiatrie</i> zwei Vorträge geben:
+Dieses Mal beginnen wir schon um <b>18:00 Uhr</b>, und es wird in der
+<i>Technischen Universität München, Gebäude N5</i> einen Vorträg geben:
 <ul>
-<li>First Impressions of <a href="https://quarto.org">Quarto<a> (auf Englisch)</li>
-<li><a href="https://typst.app">Typst</a>, der T<sub>E</sub>X-Nachfolger?</li>
+<li><a href="https://typst.app">Typst</a> als LaTeX Alternative &ndash; erste Schritte</li>
 </ul>
 
-Danach gemeinsames Nachtreffen im <a href="https://trattoria-la-piazza.de/">La Piazza</a> (500m zu Fuß). Wir haben jetzt mal für 10 Leute auf "Pütz" reserviert!
+Danach gemeinsames Nachtreffen im <a href="http://www.tresznjewski.com/">Tresznjewski</a> (fußläufig).
