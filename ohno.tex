@@ -1,3 +1,60 @@
+\documentclass[ngerman]{article}
+
+\usepackage{datatool}
+\usepackage{fancyvrb,fvextra}
+\usepackage[calc]{datetime2}
+
+\DTMsetdatestyle{iso}
+
+\makeatletter
+% Redefine to not use \number, else we don't get 00 for minutes e.g.
+\def\@dtm@parsetime#1:#2:#3\@dtm@endparsetime{%
+  \edef\@dtm@hour{#1}%
+  \edef\@dtm@minute{#2}%
+  \edef\@dtm@second{#3}%
+}
+\def\DTMsavedatetime#1-#2-#3 #4:#5\relax{%
+  \DTMsavedate{ISODATE}{#1-#2-#3}
+  \DTMsavetime{ISODATE}{#4:#5:00}
+}
+\makeatother
+
+\DTLsetseparator{;}
+\DTLloaddb{addresses}{addresses.csv}
+\DTLloaddb{dates}{dates.csv}
+\dtlsort{DATE}{dates}{\dtlcompare}
+
+% https://tex.stackexchange.com/questions/335483/retrieving-substring-of-dtlfetch
+\newcommand{\DTLfetchsave}[5]{%
+  \edtlgetrowforvalue{#2}{\dtlcolumnindex{#2}{#3}}{#4}%
+  \dtlgetentryfromcurrentrow{\dtlcurrentvalue}{\dtlcolumnindex{#2}{#5}}%
+  \let#1\dtlcurrentvalue
+}
+
+% https://tex.stackexchange.com/a/460917
+\makeatletter
+\def\Write#1{%
+  \begingroup
+    \catcode`\^^M=13
+    \catcode`"=12
+    \newlinechar`\^^M
+    \Write@brace#1}
+\def\Write@brace#1#2{%
+    \immediate\write#1{#2}%
+  \endgroup}
+\makeatother
+
+\def\ { }
+
+\begin{document}
+
+\newwrite\html
+\immediate\openout\html=index.html\relax
+
+\def\color{red}
+\def\double#1{#1, #1}
+
+\begin{VerbatimWrite}[writefilehandle=\html]
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -83,55 +140,63 @@ und anderen TeX-Formaten.
 
 <h2 id="next">Nächster Termin</h2>
 
-<p>Am Mittwoch, den 2. April 2025 ist wieder TeX-Stammtisch in München.</p>
+\end{VerbatimWrite}
 
-<p>Wir treffen uns um 19:00 hier:</p>
- <blockquote>
- »Schiller Bräu«<br>
- Schillerstraße 23<br>
- 80336 München<br>
- Haltestelle »Hauptbahnhof«<br>
- <a href="https://www.schiller-braeu.de/de/">https://www.schiller-braeu.de/de/</a><br>
- </blockquote>
-<p> Alle, die sich für TeX, LaTeX und guten Schriftsatz interessieren, sind herzlich eingeladen. </p> 
- <h2>Terminvorschau</h2> 
- Außer dem oben angegebenen nächsten Termin sind die bislang geplanten weiteren Termine: 
- <ul>
-<li>Donnerstag, 2025-06-05</li>
-<li>Dienstag, 2025-08-05</li>
-<li>Mittwoch, 2025-10-01</li>
-<li>Donnerstag, 2025-12-04</li>
-</ul>
+\DTLforeach[\DTLisgt{\DATE}{\DTMtoday}]{dates}{\DATE=DATE,\LOCATION=LOCATION,\SIGNUP=SIGNUP}{%
+  \expandafter\DTMsavedatetime\DATE\relax
+  \edef\WEEKDAY{\DTMgermanweekdayname{\DTMfetchdow{ISODATE}}}
+  %
+  \DTLiffirstrow{
+    \DTLfetchsave{\PLACE}{addresses}{ID}{\LOCATION}{NAME}
+    \DTLfetchsave{\ADDRESS}{addresses}{ID}{\LOCATION}{ADDRESS}
+    \DTLfetchsave{\CITY}{addresses}{ID}{\LOCATION}{CITY}
+    \DTLfetchsave{\DETAIL}{addresses}{ID}{\LOCATION}{DETAIL}
+    \DTLfetchsave{\URL}{addresses}{ID}{\LOCATION}{URL}
+    \Write\html{<p>Am \WEEKDAY, den \number\DTMfetchday{ISODATE}. \DTMgermanmonthname{\DTMfetchmonth{ISODATE}} \DTMfetchyear{ISODATE} ist wieder TeX-Stammtisch in München.</p>^^J}
+    \Write\html{<p>Wir treffen uns um \DTMfetchhour{ISODATE}:\DTMfetchminute{ISODATE} hier:</p>}
+    \Write\html{
+<blockquote>^^J
+\PLACE<br>^^J
+\ADDRESS<br>^^J
+\CITY<br>^^J
+\DETAIL<br>^^J
+<a href="\URL">\URL</a><br>^^J
+</blockquote>}
+    \DTLifnull{\SIGNUP}{}{
+      \Write\html{<p>
+Um ausreichend Plätze reservieren zu können, wird eine Rückmeldung unter
+<a href="\SIGNUP">\SIGNUP</a> erbeten.</p>}%
+    }
+    \Write\html{<p>
+Alle, die sich für TeX, LaTeX und guten Schriftsatz interessieren, sind
+herzlich eingeladen.
+</p>
+^^J
+<h2>Terminvorschau</h2>
+^^J
+Außer dem oben angegebenen nächsten Termin sind die bislang geplanten weiteren
+Termine:
+^^J
+<ul>}%
+  }{
+    \Write\html{<li>\WEEKDAY, \DTMfetchyear{ISODATE}-\DTMfetchmonth{ISODATE}-\DTMfetchday{ISODATE}</li>}
+  }
+}
+\Write\html{</ul>}
 
+\Write\html{
 <h2>Vergangene Termine</h2>
+^^J
+<ul>}
+\dtlsort{DATE=descending}{dates}{\dtlcompare}
+\DTLforeach[\DTLislt{\DATE}{\DTMtoday}]{dates}{\DATE=DATE,\LOCATION=LOCATION}{%
+  \expandafter\DTMsavedatetime\DATE\relax
+  \edef\WEEKDAY{\DTMgermanweekdayname{\DTMfetchdow{ISODATE}}}
+  \Write\html{<li>\WEEKDAY, \DTMfetchyear{ISODATE}-\DTMfetchmonth{ISODATE}-\DTMfetchday{ISODATE}\ im \LOCATION</li>}
+}
+\Write\html{</ul>^^J}
 
-
-<ul>
-<li>Dienstag, 2025-02-04 im Schiller Bräu</li>
-<li>Donnerstag, 2024-12-05 im Schiller Bräu</li>
-<li>Mittwoch, 2024-10-09 im Schiller Bräu</li>
-<li>Dienstag, 2024-08-06 im Schiller Bräu</li>
-<li>Donnerstag, 2024-06-06 im Schiller Bräu</li>
-<li>Mittwoch, 2024-04-03 im Schiller Bräu</li>
-<li>Dienstag, 2024-02-06 im TUM Nordgelände</li>
-<li>Donnerstag, 2023-12-07 im Max-Planck-Institut für Psychiatrie</li>
-<li>Mittwoch, 2023-10-04 im Schiller Bräu</li>
-<li>Donnerstag, 2023-07-27 im Schiller Bräu</li>
-<li>Donnerstag, 2023-06-01 im Schiller Bräu</li>
-<li>Mittwoch, 2023-04-05 im Schiller Bräu</li>
-<li>Dienstag, 2023-02-07 im Schiller Bräu</li>
-<li>Donnerstag, 2022-12-08 im Rumpler</li>
-<li>Mittwoch, 2022-10-05 im Schiller Bräu</li>
-<li>Montag, 2022-07-11 im Rumpler</li>
-<li>Mittwoch, 2022-06-15 im Rumpler</li>
-<li>Montag, 2019-12-02 im Rumpler</li>
-<li>Donnerstag, 2019-10-10 im Rumpler</li>
-<li>Mittwoch, 2019-08-07 im Rumpler</li>
-<li>Dienstag, 2019-06-04 im Rumpler</li>
-<li>Montag, 2019-04-01 im Rumpler</li>
-<li>Donnerstag, 2019-02-07 im Rumpler</li>
-</ul>
-
+\begin{VerbatimWrite}[writefilehandle=\html]
 <h2 id="about">Über den Münchner TeX-Stammtisch</h2>
 
 <p>
@@ -182,7 +247,11 @@ einen Überblick über vergangene Stammtische gibts
 </p>
 
 <footer>
-Letzte Aktualisierung: 2025-02-28 18:07:12Z &middot;
+\end{VerbatimWrite}
+
+\Write\html{Letzte Aktualisierung: \DTMnow\ &middot;}
+
+\begin{VerbatimWrite}[writefilehandle=\html]
 <a href="https://www.dante.de/impressum/">Impressum</a> &middot;
 <a href="ohno.tex">Mit TeX gemacht!</a>
 </footer>
@@ -190,3 +259,7 @@ Letzte Aktualisierung: 2025-02-28 18:07:12Z &middot;
 </div>
 </main>
 </body>
+\end{VerbatimWrite}
+
+\immediate\closeout\html
+\end{document}
