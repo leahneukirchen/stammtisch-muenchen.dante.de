@@ -3,20 +3,24 @@ name: GitHub Pages
 on:
   push:
     branches:
-      - master
+      - tex
   pull_request:
 
 jobs:
   deploy:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
+    container:
+      image: texlive/texlive:latest-full
     steps:
       - uses: actions/checkout@v3
       - name: Build
-        run: php index.php >public/index.html
+        run: |
+          pdflatex ohno.tex
+          cp ohno.tex index.html public/
       - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,265 @@
+\documentclass[ngerman]{article}
+
+\usepackage{datatool}
+\usepackage{fancyvrb,fvextra}
+\usepackage[calc]{datetime2}
+
+\DTMsetdatestyle{iso}
+
+\makeatletter
+% Redefine to not use \number, else we don't get 00 for minutes e.g.
+\def\@dtm@parsetime#1:#2:#3\@dtm@endparsetime{%
+  \edef\@dtm@hour{#1}%
+  \edef\@dtm@minute{#2}%
+  \edef\@dtm@second{#3}%
+}
+\def\DTMsavedatetime#1-#2-#3 #4:#5\relax{%
+  \DTMsavedate{ISODATE}{#1-#2-#3}
+  \DTMsavetime{ISODATE}{#4:#5:00}
+}
+\makeatother
+
+\DTLsetseparator{;}
+\DTLloaddb{addresses}{addresses.csv}
+\DTLloaddb{dates}{dates.csv}
+\dtlsort{DATE}{dates}{\dtlcompare}
+
+% https://tex.stackexchange.com/questions/335483/retrieving-substring-of-dtlfetch
+\newcommand{\DTLfetchsave}[5]{%
+  \edtlgetrowforvalue{#2}{\dtlcolumnindex{#2}{#3}}{#4}%
+  \dtlgetentryfromcurrentrow{\dtlcurrentvalue}{\dtlcolumnindex{#2}{#5}}%
+  \let#1\dtlcurrentvalue
+}
+
+% https://tex.stackexchange.com/a/460917
+\makeatletter
+\def\Write#1{%
+  \begingroup
+    \catcode`\^^M=13
+    \catcode`"=12
+    \newlinechar`\^^M
+    \Write@brace#1}
+\def\Write@brace#1#2{%
+    \immediate\write#1{#2}%
+  \endgroup}
+\makeatother
+
+\def\ { }
+
+\begin{document}
+
+\newwrite\html
+\immediate\openout\html=index.html\relax
+
+\def\color{red}
+\def\double#1{#1, #1}
+
+\begin{VerbatimWrite}[writefilehandle=\html]
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TeX-Stammtisch in München</title>
+  <style>
+body {
+  background-color: #f7f7f7;
+  color: #333333;
+  font-family: "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-size: 16px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+a:link, a:visited {
+  color: #424242;
+}
+
+a:hover, a:active {
+  color: #555555;
+}
+
+h1 {
+  font-size: 1.5em;
+  padding: 1.5em 0 0 0;
+}
+
+h2 {
+  font-size: 1.25em;
+}
+
+main {
+  background: #ffffff;
+  -webkit-box-shadow: 0 10px 20px 0 rgba(236, 236, 236, 0.86);
+          box-shadow: 0 10px 20px 0 rgba(236, 236, 236, 0.86);
+  max-width: 800px;
+  margin: 60px auto;
+}
+
+.content {
+  max-width: 740px;
+  height: auto;
+  margin: 0 auto;
+  padding: 0 20px 20px 20px;
+}
+
+.headerimg {
+  background-image: url(./header.jpeg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 130px;
+  margin: 25px 0 1em 0;
+}
+
+footer {
+  font-style: italic;
+  text-align: right;
+}
+
+  </style>
+</head>
+
+<body>
+<main>
+<div class="content">
+<h1>TeX-Stammtisch in München</h1>
+<div class="headerimg"></div>
+
+<h2>Unser Thema</h2>
+
+<p>
+Unser Stammtisch ist ein offener Treff für alle, die an Diskussion und
+Information über das Textsatzsystem TeX und sein Umfeld und über
+Schriftsatz, Typografie und Druckereiwesen in irgendeiner Weise
+interessiert sind.  Willkommen sind vor allem auch Einsteiger auf der
+Suche nach Tipps, Erfahrungen und Ratschlägen zum Einsatz von LaTeX
+und anderen TeX-Formaten.
+</p>
+
+<h2 id="next">Nächster Termin</h2>
+
+\end{VerbatimWrite}
+
+\DTLforeach[\DTLisgt{\DATE}{\DTMtoday}]{dates}{\DATE=DATE,\LOCATION=LOCATION,\SIGNUP=SIGNUP}{%
+  \expandafter\DTMsavedatetime\DATE\relax
+  \edef\WEEKDAY{\DTMgermanweekdayname{\DTMfetchdow{ISODATE}}}
+  %
+  \DTLiffirstrow{
+    \DTLfetchsave{\PLACE}{addresses}{ID}{\LOCATION}{NAME}
+    \DTLfetchsave{\ADDRESS}{addresses}{ID}{\LOCATION}{ADDRESS}
+    \DTLfetchsave{\CITY}{addresses}{ID}{\LOCATION}{CITY}
+    \DTLfetchsave{\DETAIL}{addresses}{ID}{\LOCATION}{DETAIL}
+    \DTLfetchsave{\URL}{addresses}{ID}{\LOCATION}{URL}
+    \Write\html{<p>Am \WEEKDAY, den \number\DTMfetchday{ISODATE}. \DTMgermanmonthname{\DTMfetchmonth{ISODATE}} \DTMfetchyear{ISODATE} ist wieder TeX-Stammtisch in München.</p>^^J}
+    \Write\html{<p>Wir treffen uns um \DTMfetchhour{ISODATE}:\DTMfetchminute{ISODATE} hier:</p>}
+    \Write\html{
+<blockquote>^^J
+\PLACE<br>^^J
+\ADDRESS<br>^^J
+\CITY<br>^^J
+\DETAIL<br>^^J
+<a href="\URL">\URL</a><br>^^J
+</blockquote>}
+    \DTLifnull{\SIGNUP}{}{
+      \Write\html{<p>
+Um ausreichend Plätze reservieren zu können, wird eine Rückmeldung unter
+<a href="\SIGNUP">\SIGNUP</a> erbeten.</p>}%
+    }
+    \Write\html{<p>
+Alle, die sich für TeX, LaTeX und guten Schriftsatz interessieren, sind
+herzlich eingeladen.
+</p>
+^^J
+<h2>Terminvorschau</h2>
+^^J
+Außer dem oben angegebenen nächsten Termin sind die bislang geplanten weiteren
+Termine:
+^^J
+<ul>}%
+  }{
+    \Write\html{<li>\WEEKDAY, \DTMfetchyear{ISODATE}-\DTMfetchmonth{ISODATE}-\DTMfetchday{ISODATE}</li>}
+  }
+}
+\Write\html{</ul>}
+
+\Write\html{
+<h2>Vergangene Termine</h2>
+^^J
+<ul>}
+\dtlsort{DATE=descending}{dates}{\dtlcompare}
+\DTLforeach[\DTLislt{\DATE}{\DTMtoday}]{dates}{\DATE=DATE,\LOCATION=LOCATION}{%
+  \expandafter\DTMsavedatetime\DATE\relax
+  \edef\WEEKDAY{\DTMgermanweekdayname{\DTMfetchdow{ISODATE}}}
+  \Write\html{<li>\WEEKDAY, \DTMfetchyear{ISODATE}-\DTMfetchmonth{ISODATE}-\DTMfetchday{ISODATE}\ im \LOCATION</li>}
+}
+\Write\html{</ul>^^J}
+
+\begin{VerbatimWrite}[writefilehandle=\html]
+<h2 id="about">Über den Münchner TeX-Stammtisch</h2>
+
+<p>
+Unser Stammtisch wurde im Oktober 1998 von Michael Niedermair gegründet,
+lange Zeit von Uwe Siart geleitet,
+und wird gegenwärtig von <a href="mailto:leah@vuxu.org">Leah Neukirchen</a>
+organisiert.
+</p>
+
+<p>
+Wir treffen uns alle zwei Monate in der ersten Woche der geradzahligen Monate,
+jeweils um 19 Uhr.
+Dabei wechseln wir den Wochentag zyklisch von Dienstag bis Donnerstag.
+Falls der Termin wirklich einmal auf einen Feiertag trifft oder in
+allgemeine Urlaubszeit fällt, weichen wir auf die zweite Woche aus.
+</p>
+
+<h2 id="list">Mailingliste</h2>
+
+<p>
+Für die Stammtischteilnehmer und sonstige Interessierte gibt es auf dem Server
+von <a href="https://dante.de">Dante e. V.</a>
+eine geschlossene Mailingliste. Es gibt dort Ankündigungen des
+jeweils nächsten Stammtischtermins und diverse Diskussionen unter den
+Mitgliedern. Wer in diese Liste aufgenommen werden möchte,
+kann sich <a href="https://lists.dante.de/mailman/listinfo/stammtisch-muenchen">online anmelden</a>.
+</p>
+
+<h2 id="list">Bayerischer TeX-Stammtisch</h2>
+
+<p>
+Es gibt in Bayern zwei TeX-Stammtische – in Erlangen und in
+München.  Ursprünglich trafen sich die Mitglieder beider Stammtische
+einmal jährlich abwechselnd im Raum Nürnberg und in München zu
+gemeinsamen Vorträgen, Diskussion und Erfahrungsaustausch mit
+anschließendem gemütlichen Beisammensein.  Die Teilnehmerzahl und das
+Einzugsgebiet wuchsen.  Inzwischen wurde daraus ein jährliches Treffen
+von TeX-Interessierten aus dem (typischerweise aber nicht
+notwendigerweise) süddeutschen Raum, das von den Mitgliedern der
+Stammtische Erlangen und München veranstaltet wird.
+</p>
+
+<p>
+Der bayrische TeX-Stammtisch hat inzwischen
+<a href="https://baytex.dante.de/">seine eigene Website baytex.dante.de</a>,
+einen Überblick über vergangene Stammtische gibts
+<a href="https://www.ks-ingenieurconsult.de/TeX/Stammtisch.html">hier</a>.
+</p>
+
+<footer>
+\end{VerbatimWrite}
+
+\Write\html{Letzte Aktualisierung: \DTMnow\ &middot;}
+
+\begin{VerbatimWrite}[writefilehandle=\html]
+<a href="https://www.dante.de/impressum/">Impressum</a> &middot;
+<a href="ohno.tex">Mit TeX gemacht!</a>
+</footer>
+
+</div>
+</main>
+</body>
+\end{VerbatimWrite}
+
+\immediate\closeout\html
+\end{document}
