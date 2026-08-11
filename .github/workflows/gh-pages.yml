@@ -16,7 +16,7 @@ jobs:
     container:
       image: texlive/texlive:latest-full
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - name: Build
         run: |
           pdflatex ohno.tex
